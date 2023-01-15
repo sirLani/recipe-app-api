@@ -1,7 +1,7 @@
 """
 Tests for the tags API.
 """
-from decimal import Decimal
+# from decimal import Decimal
 
 from builtins import len
 from django.contrib.auth import get_user_model
@@ -13,7 +13,7 @@ from rest_framework.test import APIClient
 
 from core.models import (
     Tag,
-    Recipe,
+    # Recipe,
 )
 
 from recipe.serializers import TagSerializer
