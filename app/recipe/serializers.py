@@ -10,19 +10,6 @@ from core.models import (
 )
 
 
-class RecipeSerializer(serializers.ModelSerializer):
-    """Serializer for recipes."""
-    # tags = TagSerializer(many=True, required=False)
-    # ingredients = IngredientSerializer(many=True, required=False)
-
-    class Meta:
-        model = Recipe
-        fields = [
-            'id', 'title', 'time_minutes', 'price', 'link'
-        ]
-        read_only_fields = ['id']
-
-
 class TagSerializer(serializers.ModelSerializer):
     """Serializer for tags."""
 
@@ -30,6 +17,34 @@ class TagSerializer(serializers.ModelSerializer):
         model = Tag
         fields = ['id', 'name']
         read_only_fields = ['id']
+
+
+class RecipeSerializer(serializers.ModelSerializer):
+    """Serializer for recipes."""
+    tags = TagSerializer(many=True, required=False)
+    # ingredients = IngredientSerializer(many=True, required=False)
+
+    class Meta:
+        model = Recipe
+        fields = [
+            'id', 'title', 'time_minutes', 'price', 'link', 'tags'
+        ]
+        read_only_fields = ['id']
+
+    def create(self, validated_data):
+        """Create a recipe."""
+        tags = validated_data.pop('tags', [])
+        # ingredients = validated_data.pop('ingredients', [])
+        recipe = Recipe.objects.create(**validated_data)
+        auth_user = self.context['request'].user
+        for tag in tags:
+            tag_obj, creeated = Tag.objects.get_or_create(
+                user=auth_user, **tag)
+            recipe.tags.add(tag_obj)
+        # self._get_or_create_tags(tags, recipe)
+        # self._get_or_create_ingredients(ingredients, recipe)
+
+        return recipe
 
     # def _get_or_create_tags(self, tags, recipe):
     #     """Handle getting or creating tags as needed."""
